@@ -12,5 +12,6 @@ namespace HotelAPI.Models
         public int NoOfAvailableRooms { get; set; }
         public string Address { get; set; }
         public string CityCode { get; set; }
+      
     }
 }

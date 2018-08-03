@@ -87,7 +87,7 @@ namespace HotelAPI.Controllers
                     Status = new StatusRecord()
                     {
                         status = Status.Failure,
-                        ErrorCode = 400,
+                        ErrorCode = 404,
                         ErrorMessage = "Exception occured: Invalid HotelId. " + exception.Message
                     }
 
@@ -165,7 +165,7 @@ namespace HotelAPI.Controllers
                     throw new Exception("Hotel not found");
                 }
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
                 return new ResponseAPI
                 {
@@ -173,8 +173,8 @@ namespace HotelAPI.Controllers
                     Status = new StatusRecord()
                     {
                         status = Status.Failure,
-                        ErrorCode = 500,
-                        ErrorMessage = "Exception Occurred :Invalid HotelId" + e.Message
+                        ErrorCode = 404,
+                        ErrorMessage = "Exception Occurred :Invalid HotelId" + exception.Message
                     }
                 };
 
@@ -183,17 +183,17 @@ namespace HotelAPI.Controllers
 
 
         [HttpPut]
-        public ResponseAPI BookHotelById(int Id, [FromBody] int NumberOfRoomsToBeBooked)
+        public ResponseAPI BookHotelById(int Id, [FromBody] int NumOfRoomsToBeBooked)
         {
             try
             {
                 var hotelToBeBooked = _hotels.Find(x => x.HotelId == Id);
-                if (hotelToBeBooked != null && NumberOfRoomsToBeBooked > 0)
+                if (hotelToBeBooked != null && NumOfRoomsToBeBooked > 0)
                 {
 
-                    if (hotelToBeBooked.NoOfAvailableRooms >= NumberOfRoomsToBeBooked)
+                    if (hotelToBeBooked.NoOfAvailableRooms >= NumOfRoomsToBeBooked)
                     {
-                        hotelToBeBooked.NoOfAvailableRooms -= NumberOfRoomsToBeBooked;
+                        hotelToBeBooked.NoOfAvailableRooms = hotelToBeBooked.NoOfAvailableRooms- NumOfRoomsToBeBooked;
                         return new ResponseAPI
                         {
                             HotelsList = _hotels,
@@ -208,34 +208,18 @@ namespace HotelAPI.Controllers
                     }
                     else
                     {
-                        return new ResponseAPI
-                        {
-                            HotelsList = null,
-                            Status = new StatusRecord()
-                            {
-                                status = Status.Failure,
-                                ErrorCode = 404,
-                                ErrorMessage = "Rooms Not Available"
-                            }
-                        };
+                        throw new Exception("Rooms Not Available");
+                      
                     }
                 }
                 else
                 {
-                    return new ResponseAPI
-                    {
-                        HotelsList = null,
-                        Status = new StatusRecord()
-                        {
-                            status = Status.Failure,
-                            ErrorCode = 404,
-                            ErrorMessage = "Invalid Data Sent"
-                        }
-                    };
+                    throw new Exception("Rooms Not Available");
+                  
                 }
 
             }
-            catch (Exception exc)
+            catch (Exception exception)
             {
                 return new ResponseAPI
                 {
@@ -243,8 +227,8 @@ namespace HotelAPI.Controllers
                     Status = new StatusRecord()
                     {
                         status = Status.Failure,
-                        ErrorCode = 500,
-                        ErrorMessage = "Exception Occurred :" + exc.Message
+                        ErrorCode = 404,
+                        ErrorMessage = "Exception Occurred :" + exception.Message
                     }
                 };
             }

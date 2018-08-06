@@ -31,7 +31,7 @@ namespace HotelAPI.Controllers
                     Status = new StatusRecord()
                     {
                         status = Status.Success,
-                        ErrorMessage = "List of all Hotels. Okay!",
+                        ErrorMessage = string.Empty,
                         ErrorCode = 200
 
                     }
@@ -46,7 +46,7 @@ namespace HotelAPI.Controllers
                     {
                         status = Status.Failure,
                         ErrorCode = 500,
-                        ErrorMessage = "Internal Server Error."
+                        ErrorMessage = "Internal Server Error."+exception.Message
                       
                     }
 
@@ -76,7 +76,17 @@ namespace HotelAPI.Controllers
                 }
                 else
                 {
-                    throw new Exception("Hotel Not Found");
+                    return new ResponseAPI()
+                    {
+                        HotelsList = null,
+                        Status = new StatusRecord()
+                        {
+                            status = Status.Failure,
+                            ErrorCode = 404,
+                            ErrorMessage = "Exception occured.Invalid HotelId"
+                        }
+
+                    };
                 }
             }
             catch(Exception exception)
@@ -87,8 +97,8 @@ namespace HotelAPI.Controllers
                     Status = new StatusRecord()
                     {
                         status = Status.Failure,
-                        ErrorCode = 404,
-                        ErrorMessage = "Exception occured: Invalid HotelId. " + exception.Message
+                        ErrorCode = 500,
+                        ErrorMessage ="Internal server error. "+exception.Message
                     }
 
                 };
@@ -120,7 +130,16 @@ namespace HotelAPI.Controllers
                 }
                 else
                 {
-                    throw new Exception("Data sent was Invalid");
+                    return new ResponseAPI
+                    {
+                        HotelsList = null,
+                        Status = new StatusRecord()
+                        {
+                            status = Status.Failure,
+                            ErrorMessage = "Exception Occurred: Data send was Invalid ",
+                            ErrorCode = 500
+                        }
+                    };
                 }
             }
             catch (Exception exception)
@@ -131,7 +150,7 @@ namespace HotelAPI.Controllers
                     Status = new StatusRecord()
                     {
                         status = Status.Failure,
-                        ErrorMessage = "Exception Occurred :" + exception.Message,
+                        ErrorMessage = "Internal Server error "+ exception.Message,
                         ErrorCode = 500
                     }
                 };
@@ -141,11 +160,11 @@ namespace HotelAPI.Controllers
         }
 
         [HttpDelete]
-        public ResponseAPI RemoveHotelById(int Id)
+        public ResponseAPI RemoveHotelById(int id)
         {
             try
             {
-                var hotelToBeDeleted = _hotels.Find(x => x.HotelId == Id);
+                var hotelToBeDeleted = _hotels.Find(x => x.HotelId == id);
                 if (hotelToBeDeleted != null)
                 {
                     _hotels.Remove(hotelToBeDeleted);
@@ -162,7 +181,16 @@ namespace HotelAPI.Controllers
                 }
                 else
                 {
-                    throw new Exception("Hotel not found");
+                    return new ResponseAPI
+                    {
+                        HotelsList = null,
+                        Status = new StatusRecord()
+                        {
+                            status = Status.Failure,
+                            ErrorCode = 404,
+                            ErrorMessage = "Invalid HotelId"
+                        }
+                    };
                 }
             }
             catch (Exception exception)
@@ -173,8 +201,8 @@ namespace HotelAPI.Controllers
                     Status = new StatusRecord()
                     {
                         status = Status.Failure,
-                        ErrorCode = 404,
-                        ErrorMessage = "Exception Occurred :Invalid HotelId" + exception.Message
+                        ErrorCode = 500,
+                        ErrorMessage = "Exception Occurred :Internal Server error " + exception.Message
                     }
                 };
 
@@ -183,17 +211,17 @@ namespace HotelAPI.Controllers
 
 
         [HttpPut]
-        public ResponseAPI BookHotelById(int Id, [FromBody] int NumOfRoomsToBeBooked)
+        public ResponseAPI BookHotelById(int id, [FromBody] int numOfRoomsToBeBooked)
         {
             try
             {
-                var hotelToBeBooked = _hotels.Find(x => x.HotelId == Id);
-                if (hotelToBeBooked != null && NumOfRoomsToBeBooked > 0)
+                var hotelToBeBooked = _hotels.Find(x => x.HotelId == id);
+                if (hotelToBeBooked != null && numOfRoomsToBeBooked > 0)
                 {
 
-                    if (hotelToBeBooked.NoOfAvailableRooms >= NumOfRoomsToBeBooked)
+                    if (hotelToBeBooked.NoOfAvailableRooms >= numOfRoomsToBeBooked)
                     {
-                        hotelToBeBooked.NoOfAvailableRooms = hotelToBeBooked.NoOfAvailableRooms- NumOfRoomsToBeBooked;
+                        hotelToBeBooked.NoOfAvailableRooms = hotelToBeBooked.NoOfAvailableRooms- numOfRoomsToBeBooked;
                         return new ResponseAPI
                         {
                             HotelsList = _hotels,
@@ -201,21 +229,37 @@ namespace HotelAPI.Controllers
                             {
                                 status = Status.Success,
                                 ErrorCode = 200,
-                                ErrorMessage = "Room Booked Successfully"
                             }
                         };
 
                     }
                     else
                     {
-                        throw new Exception("Rooms Not Available");
-                      
+                        return new ResponseAPI
+                        {
+                            HotelsList = null,
+                            Status = new StatusRecord()
+                            {
+                                status = Status.Failure,
+                                ErrorCode = 404,
+                                ErrorMessage = "Rooms not available"
+                            }
+                        };
+
                     }
                 }
                 else
                 {
-                    throw new Exception("Rooms Not Available");
-                  
+                    return new ResponseAPI
+                    {
+                        HotelsList = null,
+                        Status = new StatusRecord()
+                        {
+                            status = Status.Failure,
+                            ErrorCode = 404,
+                            ErrorMessage = "Invalid HotelId"
+                        }
+                    };
                 }
 
             }
@@ -227,7 +271,7 @@ namespace HotelAPI.Controllers
                     Status = new StatusRecord()
                     {
                         status = Status.Failure,
-                        ErrorCode = 404,
+                        ErrorCode = 500,
                         ErrorMessage = "Exception Occurred :" + exception.Message
                     }
                 };
